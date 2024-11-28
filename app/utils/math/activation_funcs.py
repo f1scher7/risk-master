@@ -4,7 +4,6 @@ import numpy as np
 def activation_func(x, func_name):
     return activation_funcs[func_name](x)
 
-
 def activation_derivative_func(x, func_name):
     return activation_derivative_funcs[func_name](x)
 
