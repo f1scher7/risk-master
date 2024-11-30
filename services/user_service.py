@@ -1,10 +1,9 @@
 from db.models import User
-from db.utils import get_session
+from db.db_connection import get_session
 from sqlalchemy.exc import IntegrityError
 
 
 class UserService:
-
     @staticmethod
     def create_user(username: str, password: str):
         try:
@@ -31,6 +30,12 @@ class UserService:
         return user
 
     @staticmethod
+    def get_all_users():
+        with get_session() as db_session:
+            users = db_session.query(User).all()
+        return users
+
+    @staticmethod
     def delete_user_by_username(username: str):
         user = UserService.get_user_by_username(username)
 
@@ -41,4 +46,3 @@ class UserService:
             return {"SUCCESS": f"User {username} was deleted"}
         else:
             print(f'User {username} not found!')
-
