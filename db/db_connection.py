@@ -39,16 +39,14 @@ def db_connection():
 
 def get_session():
     try:
-        engine = get_engine()
-        return sessionmaker(bind=engine)()
+        return sessionmaker(bind=get_engine())()
     except Exception as e:
         print(f'DB connection ERROR: {e}')
         raise
 
 def get_engine():
     try:
-        engine = create_engine(db_url)
-        return engine
+        return create_engine(db_url)
     except Exception as e:
         print(f"DB connection ERROR: {e}")
         raise
