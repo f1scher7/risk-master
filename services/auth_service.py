@@ -4,6 +4,7 @@ from services.user_service import UserService
 
 
 class AuthService:
+
     @staticmethod
     def login(username: str, password: str):
         user = UserService.get_user_by_username(username);
@@ -17,6 +18,7 @@ class AuthService:
 
         return {"ERROR": "Invalid username or password"}
 
+
     @staticmethod
     def logout(username: str):
         user = UserService.get_user_by_username(username)
@@ -29,7 +31,6 @@ class AuthService:
             return {"SUCCESS": f"User {user.username} legged out"}
 
         return {"ERROR": f"User {user.username} not found"}
-
 
 
     @staticmethod
