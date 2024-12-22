@@ -23,6 +23,7 @@ def initialize_database(base):
     engine = create_engine(db_url)
     base.metadata.create_all(engine)
 
+
 def db_connection():
     try:
         connection = psycopg2.connect(
@@ -37,12 +38,14 @@ def db_connection():
         print(f'DB connection ERROR: {e}')
         raise
 
+
 def get_session():
     try:
         return sessionmaker(bind=get_engine())()
     except Exception as e:
         print(f'DB connection ERROR: {e}')
         raise
+
 
 def get_engine():
     try:

@@ -20,6 +20,7 @@ def min_max_normalization(x, normalization_range, min_val=None, max_val=None):
 
     return scaled_X, min_val, max_val
 
+
 # We're using Log normalization:
 # when we have large numbers in training data;
 # when we have large spread in training data (price(1000$-1000000$));
