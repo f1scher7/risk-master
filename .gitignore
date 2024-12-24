@@ -185,3 +185,4 @@ fabric.properties
 # .idea
 /plans.txt
 /app/test.py
+/git-push.sh
