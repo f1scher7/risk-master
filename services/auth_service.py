@@ -7,7 +7,7 @@ class AuthService:
 
     @staticmethod
     def login(username: str, password: str):
-        user = UserService.get_user_by_username(username);
+        user = UserService.get_user_by_username(username)
 
         if user and AuthService.is_password_correct(password=password ,hashed_password=user.password):
             user.session_token = str(uuid4())
