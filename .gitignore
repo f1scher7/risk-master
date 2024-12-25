@@ -183,6 +183,7 @@ fabric.properties
 
 # idea folder, uncomment if you don't need it
 # .idea
+
 /plans.txt
 /app/test.py
-/git-push.sh
+/scripts/git-push.sh
