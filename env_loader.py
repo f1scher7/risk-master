@@ -9,6 +9,7 @@ load_dotenv(dotenv_path=env_path)
 
 
 RISK_MASTER_ROOT = os.getenv("RISK_MASTER_ROOT")
+STYLES_PATH = f"{RISK_MASTER_ROOT}{os.getenv("STYLES_PATH")}"
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
