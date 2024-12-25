@@ -1,5 +1,5 @@
-from db.models import User
-from db.db_connection import get_session
+from models.user import User
+from utils.db_connection_utils import get_session
 from sqlalchemy.exc import IntegrityError
 from bcrypt import hashpw
 from bcrypt import gensalt
