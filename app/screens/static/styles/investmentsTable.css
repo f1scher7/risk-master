@@ -1,0 +1,45 @@
+.investmentTable {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.tableCell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 7px;
+    flex: 1;
+    max-width: 50%;
+}
+
+.logoImg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.investmentInfo {
+    display: flex;
+    flex-direction: column;
+    margin-left: 17px !important;
+}
+
+.logoName {
+    font-weight: bold;
+    padding-bottom: 0 !important;
+    margin: 0;
+}
+
+.price {
+    font-weight: bold;
+    margin: 0;
+}
