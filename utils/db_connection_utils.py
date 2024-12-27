@@ -3,11 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from env_loader import *
 
-db_url = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
 
 def initialize_database(base):
-    engine = create_engine(db_url)
+    engine = create_engine(DB_URL)
     base.metadata.create_all(engine)
 
 
@@ -36,7 +34,7 @@ def get_session():
 
 def get_engine():
     try:
-        return create_engine(db_url)
+        return create_engine(DB_URL)
     except Exception as e:
         print(f"DB connection ERROR: {e}")
         raise
