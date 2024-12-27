@@ -1,7 +1,12 @@
-import base64
-
 import streamlit as st
+import base64
+from enums import Screen
 from env_loader import STYLES_PATH
+
+
+def set_current_screen(current_screen: Screen):
+    st.session_state["current_screen"] = current_screen
+    st.rerun()
 
 
 def load_css(file_name: str):
