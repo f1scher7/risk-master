@@ -185,5 +185,4 @@ fabric.properties
 # .idea
 
 /plans.txt
-/app/test.py
 /scripts/git-push.sh
