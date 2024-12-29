@@ -20,7 +20,7 @@ st.set_page_config(
 )
 
 
-def main():
+def risk_master():
     initialize_session()
 
     if not st.session_state["is_logged_in"]:
@@ -42,4 +42,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    risk_master()
