@@ -23,3 +23,16 @@ def prepare_training_data(file_name: str):
 
     return data
 
+
+def create_sequences(data, sequence_length):
+    sequences = []
+    targets = []
+
+    for i in range(len(data) - sequence_length):
+        seq = data.iloc[i:i + sequence_length][COLUMNS_FOR_TRAINING]
+        tar = data.iloc[i + sequence_length][Columns.CLOSE.value]
+
+        sequences.append(seq)
+        targets.append(tar)
+
+    return np.array(sequences), np.array(targets)
