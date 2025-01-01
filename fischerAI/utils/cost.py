@@ -9,9 +9,9 @@ def cost_derivative_func(y_true, y_pred, cost_func_name):
 
 
 cost_funcs = {
-    'mse': lambda y_true, y_pred: np.mean((y_true - y_pred) ** 2)
+    'mse': lambda y_true, y_pred: np.mean(np.square(y_pred - y_true))
 }
 
 cost_derivative_funcs = {
-    'mse': lambda y_true, y_pred: 2 * (y_pred - y_true) / y_true.shape[0]
+    'mse': lambda y_true, y_pred: 2. * (y_pred - y_true) / y_true.shape[0]
 }
