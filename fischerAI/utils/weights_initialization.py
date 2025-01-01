@@ -1,6 +1,5 @@
 import numpy as np
 
-
 np.random.seed(42)
 
 
@@ -9,12 +8,15 @@ def he_init(current_layer_size, next_layer_size):
 
 
 def xavier_init_for_lstm(input_size, hidden_size):
-    forget_gate_weight = xavier_init(input_size + hidden_size, hidden_size)
-    input_gate_weight = xavier_init(input_size + hidden_size, hidden_size)
-    output_gate_weight = xavier_init(input_size + hidden_size, hidden_size)
-    client_gate_weight = xavier_init(input_size + hidden_size, hidden_size)
+    combined_size = input_size + hidden_size
+
+    forget_gate_weight = xavier_init(combined_size, hidden_size)
+    input_gate_weight = xavier_init(combined_size, hidden_size)
+    output_gate_weight = xavier_init(combined_size, hidden_size)
+    client_gate_weight = xavier_init(combined_size, hidden_size)
 
     return forget_gate_weight, input_gate_weight, output_gate_weight, client_gate_weight
+
 
 def xavier_init(current_layer_size, next_layer_size):
     limit = np.sqrt(6. / (current_layer_size + next_layer_size)) # we have 6. because its the best value for sigmoid and tanh
