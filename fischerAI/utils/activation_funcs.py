@@ -17,7 +17,7 @@ activation_funcs = {
 activation_derivative_funcs = {
     'relu': lambda x: (x > 0).astype(float),
     'sigmoid': lambda x: x * (1 - x),
-    'tanh': lambda x: 1 - np.tanh(x) ** 2.,
+    'tanh': lambda x: 1 - x * x,
 }
 
 
