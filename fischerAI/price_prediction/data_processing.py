@@ -1,38 +1,51 @@
+import numba
 import pandas as pd
 import numpy as np
 from fischerAI.utils.fischerAI_utils import load_data_csv
 from fischerAI.utils.input_data_normalization import *
-from enums import Columns
+from enums import Column
 
 
-COLUMNS_FOR_TRAINING = [Columns.OPEN.value, Columns.HIGH.value, Columns.LOW.value, Columns.CLOSE.value, Columns.VOLUME.value]
+COLUMNS_FOR_TRAINING = [Column.OPEN.value, Column.HIGH.value, Column.LOW.value, Column.CLOSE.value, Column.VOLUME.value]
 
 
 def prepare_training_data(file_name: str):
     data = load_data_csv(file_name, True)
 
-    data[Columns.TIMESTAMP.value] = pd.to_datetime(data[Columns.TIMESTAMP.value], unit="s")
+    data[Column.TIMESTAMP.value] = pd.to_datetime(data[Column.TIMESTAMP.value], unit="s")
 
-    data.set_index(data[Columns.TIMESTAMP.value], inplace=True)
+    data.set_index(data[Column.TIMESTAMP.value], inplace=True)
     data.dropna(inplace=True)
 
     # print("Data before normalization:")
     # print(data.tail(100))
 
-    data[COLUMNS_FOR_TRAINING] = min_max_normalization(data[COLUMNS_FOR_TRAINING])
+    data['date'] = data.index.date
 
-    return data
+    daily_data = data.groupby('date').apply(lambda x: x.iloc[[0, len(x) // 2, -1]])
+
+    daily_data[COLUMNS_FOR_TRAINING] = min_max_normalization(daily_data[COLUMNS_FOR_TRAINING])
+
+    return daily_data
 
 
-def create_sequences(data, sequence_length):
-    sequences = []
-    targets = []
+def get_sequences(data, sequence_length):
+    data_np = data[COLUMNS_FOR_TRAINING].values
+    targets_np = data[Column.CLOSE.value].values
 
-    for i in range(len(data) - sequence_length):
-        seq = data.iloc[i:i + sequence_length][COLUMNS_FOR_TRAINING]
-        tar = data.iloc[i + sequence_length][Columns.CLOSE.value]
+    return create_sequences_numba(data_np, targets_np, sequence_length)
 
-        sequences.append(seq)
-        targets.append(tar)
 
-    return np.array(sequences), np.array(targets)
+@numba.jit(nopython=True, parallel=True)
+def create_sequences_numba(data_np, targets_np, sequence_length):
+    num_samples = len(data_np) - sequence_length
+    num_features = data_np.shape[1]
+
+    sequences = np.zeros((num_samples, sequence_length, num_features))
+    targets = np.zeros(num_samples)
+
+    for i in numba.prange(num_samples):  # we are using prange for parallelization
+        sequences[i] = data_np[i:i + sequence_length]
+        targets[i] = targets_np[i + sequence_length]
+
+    return sequences, targets
