@@ -7,7 +7,7 @@ class Screen(Enum):
     RISK_ANALYSIS = "risk_analysis"
 
 
-class Columns(Enum):
+class Column(Enum):
     TIMESTAMP = "Timestamp"
     OPEN = "Open"
     LOW = "Low"
