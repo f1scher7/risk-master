@@ -1,14 +1,24 @@
+import numpy as np
 import pandas as pd
+from datetime import datetime
 import matplotlib.pyplot as plt
-from env_loader import DATA_TRAINING_PATH
+from env_loader import DATA_SETS_PATH
 
 
 def load_data_csv(file_name: str, is_training_data: bool, split_ratio: float = 0.8):
-    data = pd.read_csv(f"{DATA_TRAINING_PATH}{file_name}")
+    data = pd.read_csv(f"{DATA_SETS_PATH}{file_name}")
 
     split_index = int(len(data) * split_ratio)
 
     return data[:split_index] if is_training_data else data[split_index:]
+
+
+def save_nn_model(model, file_path, file_name):
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    file = f"{file_path}{file_name}_{timestamp}.npy"
+
+    np.save(file, model)
+    print(f"{file_name} was saved to {file}")
 
 
 def plot_losses(loss_values, cost_func_name):
