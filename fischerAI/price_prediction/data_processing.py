@@ -33,19 +33,19 @@ def get_sequences(data, sequence_length):
     data_np = data[COLUMNS_FOR_TRAINING].values
     targets_np = data[Column.CLOSE.value].values
 
-    return create_sequences_numba(data_np, targets_np, sequence_length)
+    return create_sequences_numba(data_np, targets_np.reshape(-1, 1), sequence_length)
 
 
 @numba.jit(nopython=True, parallel=True)
 def create_sequences_numba(data_np, targets_np, sequence_length):
-    num_samples = len(data_np) - sequence_length
+    num_sequences = len(data_np) - sequence_length - sequence_length + 1
     num_features = data_np.shape[1]
 
-    sequences = np.zeros((num_samples, sequence_length, num_features))
-    targets = np.zeros(num_samples)
+    sequences = np.zeros((num_sequences, sequence_length, num_features))
+    target_sequences = np.zeros((num_sequences, sequence_length, 1))
 
-    for i in numba.prange(num_samples):  # we are using prange for parallelization
+    for i in numba.prange(num_sequences):  # we are using prange for parallelization
         sequences[i] = data_np[i:i + sequence_length]
-        targets[i] = targets_np[i + sequence_length]
+        target_sequences[i] = targets_np[i + sequence_length:i + sequence_length * 2]
 
-    return sequences, targets
+    return sequences, target_sequences
