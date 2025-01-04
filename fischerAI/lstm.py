@@ -1,30 +1,30 @@
 import numpy as np
-from datetime import datetime
 from fischerAI.utils.cost import cost_func
-from fischerAI.utils.fischerAI_utils import plot_losses
+from fischerAI.utils.fischerAI_utils import plot_losses, save_nn_model
 from fischerAI.utils.weights_initialization import xavier_init_for_lstm
 from fischerAI.utils.activation_funcs import activation_func, activation_derivative_func
 from env_loader import PRICE_PREDICTION_SAVED_MODELS_PATH
+from enums import InvestmentSymbol
 
 
 class LSTM:
 
-    def __init__(self, input_size, hidden_size, epochs=5000, learning_rate=0.01, initial_state=None):
-        self.input_size = input_size
-        self.hidden_size = hidden_size
+    def __init__(self, input_sequence_length, hidden_neurons, epochs=5000, learning_rate=0.01, initial_state=None):
+        self.input_sequence_length = input_sequence_length
+        self.hidden_neurons = hidden_neurons
         self.epochs = epochs
         self.learning_rate = learning_rate
 
-        self.forget_gate_weights, self.input_gate_weights, self.candidate_gate_weights, self.output_gate_weights = xavier_init_for_lstm(self.input_size, self.hidden_size)
+        self.forget_gate_weights, self.input_gate_weights, self.candidate_gate_weights, self.output_gate_weights = xavier_init_for_lstm(self.input_sequence_length, self.hidden_neurons)
 
-        self.forget_gate_bias = np.zeros((1, self.hidden_size))
-        self.input_gate_bias = np.zeros((1, self.hidden_size))
-        self.candidate_gate_bias = np.zeros((1, self.hidden_size))
-        self.output_gate_bias = np.zeros((1, self.hidden_size))
+        self.forget_gate_bias = np.zeros((1, self.hidden_neurons))
+        self.input_gate_bias = np.zeros((1, self.hidden_neurons))
+        self.candidate_gate_bias = np.zeros((1, self.hidden_neurons))
+        self.output_gate_bias = np.zeros((1, self.hidden_neurons))
 
         if initial_state is None:
-            self.hidden_state = np.zeros((1, hidden_size))
-            self.cell_state = np.zeros((1, hidden_size))
+            self.hidden_state = np.zeros((1, hidden_neurons))
+            self.cell_state = np.zeros((1, hidden_neurons))
         else:
             self.hidden_state, self.cell_state = initial_state
 
@@ -36,38 +36,38 @@ class LSTM:
         self.output_gates = None
         self.combined_inputs = None
 
-        self.reset_memory()
+
+    # def train(self, x, y, verbose=True):
+    #     losses = []
+    #
+    #     for epoch in range(self.epochs):
+    #         epoch_loss = 0
+    #
+    #         for i in range(len(x)):
+    #             final_hidden, _, _ = self.forward_propagation(x[i])
+    #             self.back_propagation_through_time(y[i])
+    #
+    #             loss = cost_func(y[i], final_hidden, 'mse')
+    #             epoch_loss += loss
+    #
+    #         avg_loss = epoch_loss / len(x)
+    #         losses.append(avg_loss)
+    #
+    #         if verbose and epoch % 10 == 0:
+    #             print(f'Epoch {epoch}/{self.epochs}, Loss: {avg_loss:.6f}')
+    #
+    #     plot_losses(losses, 'mse')
+    #
+    #     return losses
 
 
-    def train(self, x, y, verbose=True):
-        losses = []
+    def forward_propagation(self, sequence):
+        sequence_length = sequence.shape[0]
 
-        for epoch in range(self.epochs):
-            epoch_loss = 0
+        self.reset_memory(sequence_length)
 
-            for i in range(len(x)):
-                final_hidden, _, _ = self.forward_propagation(x[i])
-                self.back_propagation_through_time(y[i])
-
-                loss = cost_func(y[i], final_hidden, 'mse')
-                epoch_loss += loss
-
-            avg_loss = epoch_loss / len(x)
-            losses.append(avg_loss)
-
-            if verbose and epoch % 10 == 0:
-                print(f'Epoch {epoch}/{self.epochs}, Loss: {avg_loss:.6f}')
-
-        plot_losses(losses, 'mse')
-
-        return losses
-
-
-    def forward_propagation(self, input_sequence):
-        self.reset_memory()
-
-        for t in range(len(input_sequence)):
-            current_input = input_sequence[t].reshape(1, -1)
+        for t in range(sequence_length):
+            current_input = sequence[t].reshape(1, -1)
 
             combined = np.concatenate((self.hidden_state, current_input), axis=1)
 
@@ -79,21 +79,21 @@ class LSTM:
             cell_state = forget_gate * self.cell_state + input_gate * candidate_gate
             hidden_state = output_gate * activation_func(cell_state, 'tanh')
 
-            self.hidden_states.append(hidden_state)
-            self.cell_states.append(cell_state)
-            self.forget_gates.append(forget_gate)
-            self.input_gates.append(input_gate)
-            self.candidate_gates.append(candidate_gate)
-            self.output_gates.append(output_gate)
-            self.combined_inputs.append(combined)
+            self.hidden_states[t] = hidden_state
+            self.cell_states[t] = cell_state
+            self.forget_gates[t] = forget_gate
+            self.input_gates[t] = input_gate
+            self.candidate_gates[t] = candidate_gate
+            self.output_gates[t] = output_gate
+            self.combined_inputs[t] = combined
 
             self.hidden_state = hidden_state
             self.cell_state = cell_state
 
-        return self.hidden_state, self.hidden_states, self.cell_states
+        return self.hidden_states, self.cell_states
 
 
-    def back_propagation_through_time(self, target):
+    def back_propagation_through_time(self, target_sequence):
         sequence_length = len(self.hidden_states)
 
         d_forget_gate_weights = np.zeros_like(self.forget_gate_weights)
@@ -111,16 +111,16 @@ class LSTM:
 
         for t in reversed(range(sequence_length)):
             if t == sequence_length - 1:
-                d_hidden_state = self.hidden_states[t] - target
+                d_hidden_state = self.hidden_states[t] - target_sequence[t]
             else:
                 d_hidden_state = d_next_hidden_state
 
-            current_cell_state = self.cell_states[t]
-            forget_gate = self.forget_gates[t]
-            input_gate = self.input_gates[t]
-            candidate_gate = self.candidate_gates[t]
-            output_gate = self.output_gates[t]
-            combined = self.combined_inputs[t]
+            current_cell_state = self.cell_states[t].reshape(1, -1)
+            forget_gate = self.forget_gates[t].reshape(1, -1)
+            input_gate = self.input_gates[t].reshape(1, -1)
+            candidate_gate = self.candidate_gates[t].reshape(1, -1)
+            output_gate = self.output_gates[t].reshape(1, -1)
+            combined = self.combined_inputs[t].reshape(1, -1)
 
             d_output_gate = d_hidden_state * activation_func(current_cell_state, 'tanh') * activation_derivative_func(output_gate, 'sigmoid')
             d_cell_state = d_hidden_state * output_gate * activation_derivative_func(current_cell_state, 'tanh') + d_next_cell_state
@@ -175,11 +175,27 @@ class LSTM:
         return [gradient * scaling_factor for gradient in gradients]
 
 
-    def reset_memory(self):
-        self.hidden_states = []
-        self.cell_states = []
-        self.forget_gates = []
-        self.input_gates = []
-        self.candidate_gates = []
-        self.output_gates = []
-        self.combined_inputs = []
+    def reset_memory(self, sequence_length):
+        self.hidden_states = np.zeros((sequence_length, self.hidden_neurons))
+        self.cell_states = np.zeros((sequence_length, self.hidden_neurons))
+        self.forget_gates = np.zeros((sequence_length, self.hidden_neurons))
+        self.input_gates = np.zeros((sequence_length, self.hidden_neurons))
+        self.candidate_gates = np.zeros((sequence_length, self.hidden_neurons))
+        self.output_gates = np.zeros((sequence_length, self.hidden_neurons))
+        self.combined_inputs = np.zeros((sequence_length, self.input_sequence_length + self.hidden_neurons))
+
+
+    def save_model(self):
+        weights_and_biases = {
+            "forget_gate_weights": self.forget_gate_weights,
+            "input_gate_weights": self.input_gate_weights,
+            "candidate_gate_weights": self.candidate_gate_weights,
+            "output_gate_weights": self.output_gate_weights,
+
+            "forget_gate_bias": self.forget_gate_bias,
+            "input_gate_bias": self.input_gate_bias,
+            "candidate_gate_bias": self.candidate_gate_bias,
+            "output_gate_bias": self.output_gate_bias,
+        }
+
+        save_nn_model(weights_and_biases, PRICE_PREDICTION_SAVED_MODELS_PATH, InvestmentSymbol.BITCOIN.value, 'lstm_model')
