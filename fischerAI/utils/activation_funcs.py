@@ -7,6 +7,10 @@ def relu(x):
     return np.maximum(x, 0)
 
 @numba.jit(nopython=True)
+def leaky_relu(x, alpha=0.01):
+    return np.where(x > 0, x, alpha * x)
+
+@numba.jit(nopython=True)
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
@@ -18,6 +22,10 @@ def tanh(x):
 @numba.jit(nopython=True)
 def relu_derivative(x):
     return (x > 0) * 1.0
+
+@numba.jit(nopython=True)
+def leaky_relu_derivative(x, alpha=0.01):
+    return np.where(x > 0, 1.0, alpha)
 
 @numba.jit(nopython=True)
 def sigmoid_derivative(x):
@@ -32,6 +40,8 @@ def tanh_derivative(x):
 def activation_func(x, func_name):
     if func_name == 'relu':
         return relu(x)
+    elif func_name == 'leaky_relu':
+        return leaky_relu(x)
     elif func_name == 'sigmoid':
         return sigmoid(x)
     elif func_name == 'tanh':
@@ -43,6 +53,8 @@ def activation_func(x, func_name):
 def activation_derivative_func(x, func_name):
     if func_name == 'relu':
         return relu_derivative(x)
+    elif func_name == 'leaky_relu':
+        return leaky_relu_derivative(x)
     elif func_name == 'sigmoid':
         return sigmoid_derivative(x)
     elif func_name == 'tanh':
