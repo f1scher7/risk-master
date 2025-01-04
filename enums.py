@@ -14,3 +14,14 @@ class Column(Enum):
     HIGH = "High"
     CLOSE = "Close"
     VOLUME = "Volume"
+
+
+class InvestmentSymbol(Enum):
+    GOLD = "gold"
+    SILVER = "silver"
+    BITCOIN = "btc"
+    ETHEREUM = "eth"
+    POLSKAGORACOIN = "pgc"
+    DOGECOIN = "doge"
+
+
