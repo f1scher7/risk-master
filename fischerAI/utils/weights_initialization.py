@@ -3,8 +3,13 @@ import numpy as np
 np.random.seed(42)
 
 
-def he_init(current_layer_size, next_layer_size):
-    return np.random.randn(current_layer_size, next_layer_size) * np.sqrt(2. / current_layer_size)
+def he_init(current_layer_size, next_layer_size, is_scaled, scale=0.1):
+    he_init_weights = np.random.randn(current_layer_size, next_layer_size) * np.sqrt(2. / current_layer_size)
+
+    if is_scaled:
+        return he_init_weights * scale
+
+    return he_init_weights
 
 
 def xavier_init_for_lstm(input_size, hidden_size):
