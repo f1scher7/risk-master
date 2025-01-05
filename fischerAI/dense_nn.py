@@ -4,12 +4,11 @@ from fischerAI.utils.activation_funcs import activation_func, activation_derivat
 from fischerAI.utils.cost import cost_func
 from fischerAI.utils.fischerAI_utils import save_nn_model
 from env_loader import PRICE_PREDICTION_SAVED_MODELS_PATH
-from enums import InvestmentSymbol
 
 
 class DenseNN:
 
-    def __init__(self, x, y, hidden1_neurons, epochs, learning_rate):
+    def __init__(self, x, y, hidden1_neurons, epochs=10, learning_rate=0.0000001):
         self.x = x
         self.y = y
         self.hidden1_neurons = hidden1_neurons
@@ -72,8 +71,13 @@ class DenseNN:
         self.mse_values.append(np.mean(mse_values_per_t))
 
 
-    def save_model(self):
-        weights_and_biases = {
+    def save_model(self, loss_after_training, investment_symbol):
+        model_info = {
+            "epochs": self.epochs,
+            "learning_rate": self.learning_rate,
+            "hidden1_neurons": self.hidden1_neurons,
+            "loss": loss_after_training,
+
             "input_to_hidden1_weights": self.input_to_hidden1_weights,
             "hidden1_to_output_weights": self.hidden1_to_output_weights,
 
@@ -81,4 +85,4 @@ class DenseNN:
             "output_bias": self.output_bias,
         }
 
-        save_nn_model(weights_and_biases, PRICE_PREDICTION_SAVED_MODELS_PATH, InvestmentSymbol.BITCOIN.value, 'dense_nn_model')
+        save_nn_model(model_info, PRICE_PREDICTION_SAVED_MODELS_PATH, investment_symbol.value, 'dense_nn_model')

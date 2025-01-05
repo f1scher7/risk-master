@@ -4,7 +4,6 @@ from fischerAI.utils.fischerAI_utils import plot_losses, save_nn_model
 from fischerAI.utils.weights_initialization import xavier_init_for_lstm
 from fischerAI.utils.activation_funcs import activation_func, activation_derivative_func
 from env_loader import PRICE_PREDICTION_SAVED_MODELS_PATH
-from enums import InvestmentSymbol
 
 
 class LSTM:
@@ -185,8 +184,13 @@ class LSTM:
         self.combined_inputs = np.zeros((sequence_length, self.input_sequence_length + self.hidden_neurons))
 
 
-    def save_model(self):
-        weights_and_biases = {
+    def save_model(self, loss_after_training, investment_symbol):
+        model_info = {
+            "epochs": self.epochs,
+            "learning_rate": self.learning_rate,
+            "hidden_neurons": self.hidden_neurons,
+            "loss": loss_after_training,
+
             "forget_gate_weights": self.forget_gate_weights,
             "input_gate_weights": self.input_gate_weights,
             "candidate_gate_weights": self.candidate_gate_weights,
@@ -198,4 +202,4 @@ class LSTM:
             "output_gate_bias": self.output_gate_bias,
         }
 
-        save_nn_model(weights_and_biases, PRICE_PREDICTION_SAVED_MODELS_PATH, InvestmentSymbol.BITCOIN.value, 'lstm_model')
+        save_nn_model(model_info, PRICE_PREDICTION_SAVED_MODELS_PATH, investment_symbol.value, 'lstm_model')
