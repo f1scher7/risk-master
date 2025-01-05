@@ -9,8 +9,8 @@ from enums import Column
 COLUMNS_FOR_TRAINING = [Column.OPEN.value, Column.HIGH.value, Column.LOW.value, Column.CLOSE.value, Column.VOLUME.value]
 
 
-def prepare_training_data(file_name: str):
-    data = load_data_csv(file_name, True)
+def prepare_data_set(file_name: str, is_training_data: bool):
+    data = load_data_csv(file_name, is_training_data)
 
     data[Column.TIMESTAMP.value] = pd.to_datetime(data[Column.TIMESTAMP.value], unit="s")
 
@@ -22,11 +22,13 @@ def prepare_training_data(file_name: str):
 
     data['date'] = data.index.date
 
-    daily_data = data.groupby('date').apply(lambda x: x.iloc[[0, len(x) // 2, -1]])
+    daily_data = data.groupby('date').apply(lambda x: x.iloc[[-1]])
 
-    daily_data[COLUMNS_FOR_TRAINING] = min_max_normalization(daily_data[COLUMNS_FOR_TRAINING])
+    # print(len(daily_data))
 
-    return daily_data
+    daily_data[COLUMNS_FOR_TRAINING], data_min_denorm, data_max_denorm = min_max_normalization(daily_data[COLUMNS_FOR_TRAINING])
+
+    return daily_data, data_min_denorm, data_max_denorm
 
 
 def get_sequences(data, sequence_length):
