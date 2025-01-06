@@ -8,9 +8,11 @@ from env_loader import PRICE_PREDICTION_SAVED_MODELS_PATH
 
 class DenseNN:
 
-    def __init__(self, x, y, hidden1_neurons, epochs=10, learning_rate=0.0000001):
+    def __init__(self, x, y, target_sequences_min, target_sequences_max, hidden1_neurons, epochs=10, learning_rate=0.0000001):
         self.x = x
         self.y = y
+        self.target_sequences_min = target_sequences_min
+        self.target_sequences_max = target_sequences_max
         self.hidden1_neurons = hidden1_neurons
         self.epochs = epochs
         self.learning_rate = learning_rate
@@ -83,6 +85,9 @@ class DenseNN:
 
             "hidden1_bias": self.hidden1_bias,
             "output_bias": self.output_bias,
+
+            "target_sequences_min": self.target_sequences_min,
+            "target_sequences_max": self.target_sequences_max,
         }
 
         save_nn_model(model_info, PRICE_PREDICTION_SAVED_MODELS_PATH, investment_symbol.value, 'dense_nn_model')

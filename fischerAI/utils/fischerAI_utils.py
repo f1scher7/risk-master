@@ -18,7 +18,8 @@ def load_data_csv(file_name: str, is_training_data: bool, split_ratio: float = 0
 
 def save_nn_model(model_info, file_path, investment_symbol, file_name):
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    file = f"{file_path}/{investment_symbol}/{file_name}_{timestamp}.npy"
+
+    file = f"{file_path}{investment_symbol}/{file_name}_{timestamp}.npy"
 
     np.save(file, model_info)
     print(f"{file_name} was saved to {file}")

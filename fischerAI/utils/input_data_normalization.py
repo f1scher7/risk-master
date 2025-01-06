@@ -5,19 +5,23 @@ import pandas as pd
 # We're using Min-Max normalization:
 # when we have small spread in training data (age(18, 80));
 # when we want to have a range for training data;
-def min_max_normalization(data: pd.DataFrame):
-    data_min = data.min()
-    data_max = data.max()
+def min_max_normalization(data):
+    data_min = np.min(data, axis=0)
+    data_max = np.max(data, axis=0)
 
-    if (data_max - data_min).any() == 0:
-        print("Warning! Min-Max normalization cause division by zero")
+    if np.any(data_max - data_min == 0):
+        print("Warning! Min-Max normalization causes division by zero")
         return data, None, None
 
-    return ((data - data_min) / (data_max - data_min)), data_min, data_max
+    normalized_data = (data - data_min) / (data_max - data_min)
+
+    return normalized_data, data_min, data_max
 
 
 def min_max_denormalization(data_norm, data_min_denorm, data_max_denorm):
-    return data_norm * (data_max_denorm - data_min_denorm) + data_min_denorm
+    denormalized_data = (data_norm * (data_max_denorm - data_min_denorm)) + data_min_denorm
+
+    return denormalized_data
 
 
 # We're using Log normalization:

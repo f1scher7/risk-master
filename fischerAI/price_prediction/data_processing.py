@@ -31,11 +31,20 @@ def prepare_data_set(file_name: str, is_training_data: bool):
     return daily_data, data_min_denorm, data_max_denorm
 
 
-def get_sequences(data, sequence_length):
+def get_sequences(data, sequence_length, is_prediction=False):
     data_np = data[COLUMNS_FOR_TRAINING].values
     targets_np = data[Column.CLOSE.value].values
 
-    return create_sequences_numba(data_np, targets_np.reshape(-1, 1), sequence_length)
+    if is_prediction:
+        last_sequence_norm, _, _ = min_max_normalization(data_np[-sequence_length:])
+        return last_sequence_norm
+
+    sequences, target_sequences =  create_sequences_numba(data_np, targets_np.reshape(-1, 1), sequence_length)
+
+    sequences_norm, _, _, = min_max_normalization(sequences)
+    target_sequences_norm, target_sequences_min, target_sequences_max, = min_max_normalization(target_sequences)
+
+    return sequences_norm, target_sequences_norm, target_sequences_min, target_sequences_max
 
 
 @numba.jit(nopython=True, parallel=True)
