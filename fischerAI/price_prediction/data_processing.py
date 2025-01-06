@@ -26,7 +26,9 @@ def prepare_data_set(file_name: str, is_training_data: bool):
 
     # print(len(daily_data))
 
-    return daily_data
+    daily_data[COLUMNS_FOR_TRAINING], data_min_denorm, data_max_denorm = min_max_normalization(daily_data[COLUMNS_FOR_TRAINING])
+
+    return daily_data, data_min_denorm, data_max_denorm
 
 
 def get_sequences(data, sequence_length, is_prediction=False):

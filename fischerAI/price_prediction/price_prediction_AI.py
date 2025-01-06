@@ -10,7 +10,7 @@ from env_loader import PRICE_PREDICTION_SAVED_MODELS_PATH
 
 
 class PricePredictionAI:
-
+    
     def __init__(self, investment_symbol, batch_size, sequence_length, input_sequence_length, hidden_lstm_neurons, hidden_dense_neurons, epochs, learning_rate_lstm, learning_rate_dense, target_sequences_min, target_sequences_max):
         self.investment_symbol = investment_symbol
 
@@ -191,4 +191,3 @@ def display_training_info(epoch, epochs, lstm_avg_loss, dense_nn_loss):
     print("LSTM Loss: " + "{:.6f}".format(lstm_avg_loss))
     print("Dense Loss: " + "{:.6f}".format(dense_nn_loss))
     print("=" * 41)
-
