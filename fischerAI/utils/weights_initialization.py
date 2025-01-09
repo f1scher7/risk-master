@@ -1,5 +1,6 @@
 import numpy as np
 
+
 np.random.seed(42)
 
 
@@ -24,7 +25,7 @@ def xavier_init_for_lstm(input_size, hidden_size):
 
 
 def xavier_init(current_layer_size, next_layer_size):
-    limit = np.sqrt(6. / (current_layer_size + next_layer_size)) # we have 6. because its the best value for sigmoid and tanh
+    limit = np.sqrt(2. / (current_layer_size + next_layer_size))
     return np.random.uniform(low=-limit, high=limit, size=(current_layer_size, next_layer_size))
 
 
