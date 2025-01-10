@@ -17,11 +17,9 @@ class Column(Enum):
 
 
 class InvestmentSymbol(Enum):
+    BITCOIN = "btc"
     GOLD = "gold"
     SILVER = "silver"
-    BITCOIN = "btc"
     ETHEREUM = "eth"
     POLSKAGORACOIN = "pgc"
     DOGECOIN = "doge"
-
-
