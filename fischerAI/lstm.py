@@ -136,11 +136,8 @@ class LSTM:
                 else:
                     d_hidden = d_next_hidden
 
-                d_output = d_hidden * activation_func(current_cell_state, 'tanh') * \
-                           activation_derivative_func(output_gate, 'sigmoid')
-
-                d_cell = d_hidden * output_gate * activation_derivative_func(current_cell_state, 'tanh') + \
-                         d_next_cell
+                d_output = d_hidden * activation_func(current_cell_state, 'tanh') * activation_derivative_func(output_gate, 'sigmoid')
+                d_cell = d_hidden * output_gate * activation_derivative_func(current_cell_state, 'tanh') + d_next_cell # we have forget_gate in d_next_cell (d_next_cell = d_cell * forget_gate)
 
                 if t > 0:
                     prev_cell_state = layer['cell_states'][t - 1]
@@ -178,6 +175,8 @@ class LSTM:
 
                 if t > 0:
                     hidden_size = layer['hidden_state'].shape[1]
+
+                    # d_combined represents total error gradient with respect to concatenated [prev_hidden, input]
                     d_combined = (
                             np.dot(d_forget, layer['forget_gate_weights'].T) +
                             np.dot(d_input, layer['input_gate_weights'].T) +
@@ -198,7 +197,7 @@ class LSTM:
                 clip_threshold = 1.0
 
                 d_weights[gate] = np.clip(d_weights[gate], -clip_threshold, clip_threshold)
-                d_weights[f'{gate[:-5]}_bias'] = np.clip(d_weights[f'{gate[:-5]}_bias'], -clip_threshold, clip_threshold)
+                d_weights[f'{gate[:-5]}_bias'] = np.clip(d_weights[f'{gate[:-5]}_bias'], -clip_threshold, clip_threshold) # we need to remove 5 last chars from gate to get forget_, input_ etc
 
                 layer['velocity'][weights_key] = (
                         self.momentum * layer['velocity'][weights_key] +
