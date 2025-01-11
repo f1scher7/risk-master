@@ -30,9 +30,12 @@ def prepare_data_set(file_name: str, is_training_data: bool):
     return daily_data
 
 
-def get_sequences(data, sequence_length, sequences_min_param=None, sequences_max_param=None, target_sequences_min_param=None, target_sequences_max_param=None, is_prediction=False, is_test=False):
+def get_sequences(data, sequence_length, sequences_min_param=None, sequences_max_param=None, target_sequences_min_param=None, target_sequences_max_param=None, is_prediction=False, is_test=False, is_graph=False):
     data_np = data[COLUMNS_FOR_TRAINING].values
     targets_np = data[Column.CLOSE.value].values
+
+    if is_graph:
+        return data_np[-sequence_length:].flatten() # convert to 1 dim
 
     if is_prediction:
         last_sequence_norm = min_max_normalization_with_min_max_params(data_np[-sequence_length:], sequences_min_param, sequences_max_param)
@@ -52,10 +55,15 @@ def get_sequences(data, sequence_length, sequences_min_param=None, sequences_max
 
 
 def get_min_max_for_sequences_and_target_sequences_from_saved_models(lstm_file_name, dense_file_name, investment_symbol):
-    lstm_model_info = np.load(f"{PRICE_PREDICTION_SAVED_MODELS_PATH}{investment_symbol.value}/{lstm_file_name}",allow_pickle=True).item()
-    dense_model_info = np.load(f"{PRICE_PREDICTION_SAVED_MODELS_PATH}{investment_symbol.value}/{dense_file_name}", allow_pickle=True).item()
+    if lstm_file_name is None and dense_file_name is None:
+        if investment_symbol == 'btc':
+            lstm_file_name = 'multi_layer_lstm_model_20250108-235552_best.npy'
+            dense_file_name = 'dense_nn_model_20250108-235552_best.npy'
 
-    return lstm_model_info["sequences_min"], lstm_model_info["sequences_max"], dense_model_info["target_sequences_min"], dense_model_info["target_sequences_max"]
+    lstm_model_info = np.load(f"{PRICE_PREDICTION_SAVED_MODELS_PATH}{investment_symbol}/{lstm_file_name}",allow_pickle=True).item()
+    dense_model_info = np.load(f"{PRICE_PREDICTION_SAVED_MODELS_PATH}{investment_symbol}/{dense_file_name}", allow_pickle=True).item()
+
+    return lstm_model_info, dense_model_info, lstm_model_info["sequences_min"], lstm_model_info["sequences_max"], dense_model_info["target_sequences_min"], dense_model_info["target_sequences_max"]
 
 
 @numba.jit(nopython=True, parallel=True)
