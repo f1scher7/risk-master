@@ -11,7 +11,7 @@ from env_loader import PRICE_PREDICTION_SAVED_MODELS_PATH
 
 class PricePredictionAI:
     
-    def __init__(self, investment_symbol, batch_size, sequence_length, input_sequence_length, hidden_lstm_layers, hidden_dense_layers, epochs, learning_rate_lstm, learning_rate_dense, sequences_min, sequences_max, target_sequences_min, target_sequences_max):
+    def __init__(self, investment_symbol, batch_size, sequence_length, input_sequence_length, hidden_lstm_layers, hidden_dense_layers, epochs, learning_rate_lstm, learning_rate_dense, decay_rate_lstm, sequences_min, sequences_max, target_sequences_min, target_sequences_max):
         self.investment_symbol = investment_symbol
 
         self.batch_size = batch_size
@@ -23,6 +23,7 @@ class PricePredictionAI:
         self.epochs = epochs
         self.learning_rate_lstm = learning_rate_lstm
         self.learning_rate_dense = learning_rate_dense
+        self.decay_rate_lstm = decay_rate_lstm
 
         self.sequences_min = sequences_min
         self.sequences_max = sequences_max
@@ -66,8 +67,10 @@ class PricePredictionAI:
             train_sequences_length = train_sequences.shape[0]
 
             for sequence, target_sequence in zip(train_sequences, train_target_sequences):
+                self.lstm.reset_states()
                 final_hidden_states, _ = self.lstm.forward_propagation(sequence)
 
+                self.learning_rate_lstm = self.learning_rate_lstm * (self.decay_rate_lstm ** epoch)
                 self.lstm.back_propagation_through_time(target_sequence)
 
                 lstm_features.append(final_hidden_states)
@@ -134,24 +137,30 @@ class PricePredictionAI:
         lstm, dense_nn = self.prepare_models_for_test_or_predict(sequence, lstm_model_info, dense_model_info)
 
         lstm_features = []
+        outputs_dense_activated_arr = []
 
-        sequence_reshaped = sequence.reshape(sequence.shape[1], sequence.shape[2])
+        for i in range(int(np.ceil(n_days / sequence.shape[1]))):
+            sequence_reshaped = sequence.reshape(sequence.shape[1], sequence.shape[2])
 
-        final_hidden_states, _ = lstm.forward_propagation(sequence_reshaped)
-        lstm_features.append(final_hidden_states)
+            final_hidden_states, _ = lstm.forward_propagation(sequence_reshaped)
+            lstm_features.append(final_hidden_states)
 
-        lstm_features_reshaped = np.array(lstm_features).reshape(sequence.shape[0], sequence.shape[1], lstm.hidden_layers_neurons[-1])
+            lstm_features_reshaped = np.array(lstm_features).reshape(sequence.shape[0], sequence.shape[1], lstm.hidden_layers_neurons[-1])
 
-        dense_nn.x = lstm_features_reshaped
-        dense_nn.batch_size = sequence.shape[0]
-        dense_nn.target_sequence_length = sequence.shape[1]
+            dense_nn.x = lstm_features_reshaped
+            dense_nn.batch_size = sequence.shape[0]
+            dense_nn.target_sequence_length = sequence.shape[1]
 
-        activations = dense_nn.forward_propagation()
-        output_activated_arr = activations[-1]
+            activations = dense_nn.forward_propagation()
+            outputs_dense_activated_arr.append(activations[-1])
 
-        denorm_output_activated_arr = min_max_denormalization(output_activated_arr, dense_nn.target_sequences_min, dense_nn.target_sequences_max)
+            sequence = activations[-1]
+            lstm_features = []
 
-        return denorm_output_activated_arr[:n_days]
+
+        denorm_outputs_dense_activated_arr = min_max_denormalization(np.array(outputs_dense_activated_arr), dense_nn.target_sequences_min, dense_nn.target_sequences_max)
+
+        return denorm_outputs_dense_activated_arr[:n_days]
 
 
     def prepare_models_for_test_or_predict(self, sequences, lstm_model_info, dense_model_info):
