@@ -13,9 +13,10 @@ RiskMaster is an intelligent platform designed for individual investors to asses
 
 * `pip install -r requirements.txt`
 * `docker run -d --name postgres-latest-riskmaster maskfischer7/postgres-latest-riskmaster:1.0`
-* Change the img_path column in investments
+* Change the img_path column in public.investments table
 * Create .env file (check env_loader.py)
 * `bash scripts/run-local.sh`
+
 
 ## Datasets
 
