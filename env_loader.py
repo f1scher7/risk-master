@@ -20,4 +20,8 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
+GOLD_DATA_SET = os.getenv("GOLD_DATA_SET")
 BITCOIN_DATA_SET = os.getenv("BITCOIN_DATA_SET")
+SILVER_DATA_SET = os.getenv("SILVER_DATA_SET")
+ETH_DATA_SET = os.getenv("ETH_DATA_SET")
+DOGE_DATA_SET = os.getenv("DOGE_DATA_SET")
