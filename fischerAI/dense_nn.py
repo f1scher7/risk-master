@@ -93,7 +93,7 @@ class DenseNN:
 
         self.mse_values.append(np.mean(mse_values_per_t))
 
-        clip_threshold = 1.0
+        clip_threshold = 3.0
         for i in range(len(self.weights)):
             weights_gradients[i] = np.clip(weights_gradients[i], -clip_threshold, clip_threshold)
 

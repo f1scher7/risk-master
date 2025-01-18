@@ -194,7 +194,7 @@ class LSTM:
                 weights_key = f'{gate}_weights'
                 bias_key = f'{gate}_bias'
 
-                clip_threshold = 1.0
+                clip_threshold = 5.0
 
                 d_weights[gate] = np.clip(d_weights[gate], -clip_threshold, clip_threshold)
                 d_weights[f'{gate[:-5]}_bias'] = np.clip(d_weights[f'{gate[:-5]}_bias'], -clip_threshold, clip_threshold) # we need to remove 5 last chars from gate to get forget_, input_ etc
