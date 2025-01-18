@@ -70,7 +70,6 @@ class PricePredictionAI:
                 self.lstm.reset_states()
                 final_hidden_states, _ = self.lstm.forward_propagation(sequence)
 
-                self.learning_rate_lstm = self.learning_rate_lstm * (self.decay_rate_lstm ** epoch)
                 self.lstm.back_propagation_through_time(target_sequence)
 
                 lstm_features.append(final_hidden_states)
@@ -102,8 +101,8 @@ class PricePredictionAI:
         self.lstm.save_model(lstm_losses[-1], self.investment_symbol)
         self.dense_nn.save_model(self.dense_nn.mse_values[-1], self.investment_symbol)
 
-        plot_losses(lstm_losses, 'MSE', 'LSTM')
         plot_losses(self.dense_nn.mse_values, 'MSE', 'Dense')
+        plot_losses(lstm_losses, 'MSE', 'LSTM')
 
         return lstm_losses
 
@@ -156,7 +155,6 @@ class PricePredictionAI:
 
             sequence = activations[-1]
             lstm_features = []
-
 
         denorm_outputs_dense_activated_arr = min_max_denormalization(np.array(outputs_dense_activated_arr), dense_nn.target_sequences_min, dense_nn.target_sequences_max)
 
