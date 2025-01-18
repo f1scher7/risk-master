@@ -3,15 +3,18 @@ import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime, timedelta
 from enums import InvestmentSymbol
-from env_loader import BITCOIN_DATA_SET
+from env_loader import GOLD_DATA_SET, BITCOIN_DATA_SET, SILVER_DATA_SET, ETH_DATA_SET, DOGE_DATA_SET
 from fischerAI.price_prediction.price_prediction_AI import PricePredictionAI
 from fischerAI.price_prediction.data_processing import prepare_data_set, get_sequences, get_min_max_for_sequences_and_target_sequences_from_saved_models
 from fischerAI.utils.input_data_normalization import min_max_normalization_with_min_max_params
 
 
 investment_data_sets = {
-    InvestmentSymbol.BITCOIN.value: BITCOIN_DATA_SET
+    InvestmentSymbol.GOLD.value: GOLD_DATA_SET,
+    InvestmentSymbol.BITCOIN.value: BITCOIN_DATA_SET,
+    InvestmentSymbol.ETHEREUM.value: ETH_DATA_SET,
 }
+
 
 min_days_to_predict = 20
 max_days_to_predict = 600
@@ -21,13 +24,17 @@ def price_prediction_screen():
     col1, col2, col3 = st.columns([3, 1, 1])
 
     with col1:
-        investment_options = [investment_symbol.value for investment_symbol in InvestmentSymbol if investment_symbol != InvestmentSymbol.POLSKAGORACOIN]
+        investment_options = [investment_symbol.value for investment_symbol in InvestmentSymbol
+                              if investment_symbol != InvestmentSymbol.POLSKAGORACOIN
+                              and investment_symbol != InvestmentSymbol.DOGECOIN
+                              and investment_symbol != InvestmentSymbol.SILVER]
+
         selected_investment = st.selectbox(
             'Choose investment: ', investment_options
         )
 
     data = prepare_data_set(investment_data_sets[selected_investment], is_training_data=False)
-    sequence = get_sequences(data, 20, is_graph=True)
+    sequence = get_sequences(data, min_days_to_predict, is_graph=True)
 
     today = datetime.today()
     dates = [today - timedelta(days=i) for i in range(len(sequence) - 1, -1, -1)]
