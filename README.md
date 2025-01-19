@@ -1,6 +1,6 @@
 # RiskMaster
 
-RiskMaster is an intelligent platform designed for individual investors to assess financial and cryptocurrency market risks. It combines historical trend analysis, predictive neural network (Fischer AI), and scenario simulations to provide actionable insights for smarter investment decisions.
+RiskMaster is an intelligent platform designed for individual investors to assess financial and cryptocurrency market risks. It combines historical trend analysis, predictive Fischer AI (LSTM + Dense), and scenario simulations to provide actionable insights for smarter investment decisions.
 
 ![image](https://github.com/user-attachments/assets/05e28330-1e72-4993-979b-71b2f8dff01e)
 
