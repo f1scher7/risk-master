@@ -27,3 +27,7 @@ Create folder data_sets in the fischerAI/
 * Silver - https://www.kaggle.com/datasets/balabaskar/silver-prices-1968-2021
 * Ethereum - https://www.kaggle.com/datasets/varpit94/ethereum-data
 * DogeCoin -  https://www.kaggle.com/datasets/dhruvildave/dogecoin-historical-data
+
+## Author
+
+Maks Szyło maksymilian.fischer7@gmail.com
